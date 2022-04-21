@@ -1,0 +1,88 @@
+# Default values for mychart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: 340193729058.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo1
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+metadata:
+  dep_name : my-deployment
+  service_name: my-service
+  name: my-app
+
+service:
+  type: LoadBalancer 
+  port: 80 
+  targetPort: 3000
+  protocol: TCP
+
+
+app_label:
+  app: my-app
+
+
+spec:
+  containers:
+    image: 340193729058.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo1  
+    name:  my-image-name
+    ports:
+        containerPort: 3000
+selector:   
+    matchLabels:
+      app: my-app
+
+resources:
+  limits:       
+    cpu: "500m"    
+    memory: "500Mi"
+  requests:
+    cpu: "250m"
+    memory: "300Mi"
+  targetAverageUtilization: 10
+
+livenessProbe:
+  httpGet:
+    port: 3000
+    initialDelaySeconds: 15
+
+readinessProbe:
+  httpGet:
+    port: 3000
+    initialDelaySeconds: 30 
+
+hpa:
+  scaleTargetRef:
+    kind: Deployment
+    name: my-deployment
+  minReplicas: 1
+  maxReplicas: 10
